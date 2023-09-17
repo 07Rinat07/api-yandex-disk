@@ -1,16 +1,20 @@
 <?php
+
+
+function vardump($str)
+{
+    echo "<pre>";
+    var_dump($str);
+    echo "</pre>";
+}
 class Backup
 {
-    function vardump($str) {
-        echo "<pre>";
-        var_dump($str);
-        echo "</pre>";
-    }
 
 //    http://localhost/api-yandex-disk/#access_token=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY&token_type=bearer&expires_in=31536000
 
 //. https://oauth.yandex.ru/authorize?response_type=token&client_id=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY
     protected $token = 'y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY';
+
     /**
      * Method sendQueryYaDisk
      *
@@ -64,9 +68,74 @@ class Backup
         $urlQuery = 'https://cloud-api.yandex.net/v1/disk/';
         return $this->sendQueryYaDisk($urlQuery);
     }
+
+
+    /**
+     * Получение директорий
+     *
+     * @param array $arrParams параметры для получения ресурсов
+     * @param string $typeDir тип области ресурсов
+     *
+     * @return array
+     */
+    public function disk_resources(array $arrParams, string $typeDir = ''): array
+    {
+        switch ($typeDir) {
+            case 'trash':
+                /* запрос для директорий в корзине */
+                $urlQuery = 'https://cloud-api.yandex.net/v1/disk/trash/resources';
+                break;
+
+            default:
+                /* запрос для активных директорий */
+                $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources';
+                break;
+        }
+
+        return $this->sendQueryYaDisk($urlQuery, $arrParams);
+    }
+    /**
+     * Получение плоского списка всех файлов
+     *
+     * @param array $arrParams параметры для получения ресурсов
+     *
+     * @return array
+     */
+    public function disk_resources_files(array $arrParams = []): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/files';
+        return $this->sendQueryYaDisk($urlQuery, $arrParams);
+    }
+
+    /**
+     * Получение последних загруженных элементов
+     *
+     * @param array $arrParams параметры для получения ресурсов
+     *
+     * @return array
+     */
+    public function disk_resources_last_uploaded(array $arrParams = []): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/last-uploaded';
+        return $this->sendQueryYaDisk($urlQuery, $arrParams);
+    }
+
 }
 
 $backupClass = new Backup();
-$resultQuery = $backupClass->disk_getInfo();
 
-var_dump($resultQuery);
+
+$arrParams = [
+  //  'path' => '/uploads',
+//     'fields' => 'name,_embedded.items.path',
+    'limit' => 10,
+    'media_type' => 'image',
+    'offset' => 0,
+    'preview_crop' => false,
+    'preview_size' => '',
+];
+
+
+$resultQuery = $backupClass->disk_resources_last_uploaded($arrParams);
+
+vardump($resultQuery);
