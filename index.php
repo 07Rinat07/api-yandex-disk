@@ -7,6 +7,7 @@ function vardump($str)
     var_dump($str);
     echo "</pre>";
 }
+
 class Backup
 {
 
@@ -94,6 +95,7 @@ class Backup
 
         return $this->sendQueryYaDisk($urlQuery, $arrParams);
     }
+
     /**
      * Получение плоского списка всех файлов
      *
@@ -120,22 +122,115 @@ class Backup
         return $this->sendQueryYaDisk($urlQuery, $arrParams);
     }
 
+
+    /**
+     * Метод для создания директории
+     *
+     * @param array $arrParams параметры для отправки запроса
+     *
+     * @return array
+     */
+    public function disk_resources_create_dir(array $arrParams): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/';
+        return $this->sendQueryYaDisk($urlQuery, $arrParams, 'PUT');
+    }
+
+    /**
+     * Метод для загрузки файлов
+     *
+     * @param string $filePath путь до файла
+     * @param string $dirPath путь до директории на Яндекс.Диск
+     *
+     * @return string
+     */
+    public function disk_resources_upload(string $filePath, string $dirPath = ''): string
+    {
+        /* отправляем запрос на получение ссылки для загрузки */
+        $arrParams = [
+            'path' => $dirPath . basename($filePath),
+            'overwrite' => 'true',
+        ];
+
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/upload';
+        $resultQuery = $this->sendQueryYaDisk($urlQuery, $arrParams);
+        /* ----------------- */
+
+        if (empty($resultQuery['error'])) {
+            /* Если ошибки нет, то отправляем файл на полученный URL. */
+            $fp = fopen($filePath, 'r');
+
+            $ch = curl_init($resultQuery['href']);
+            curl_setopt($ch, CURLOPT_PUT, true);
+            curl_setopt($ch, CURLOPT_UPLOAD, true);
+            curl_setopt($ch, CURLOPT_INFILESIZE, filesize($filePath));
+            curl_setopt($ch, CURLOPT_INFILE, $fp);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            return $http_code;
+        } else {
+            return $resultQuery['message'];
+        }
+    }
+
+    /**
+     * Метод для скачивания файлов на сервера
+     *
+     * @param string $filePath путь до файла в Яндекс.Диске
+     * @param string $dirPath путь до директории на сервере
+     *
+     * @return array
+     */
+    public function disk_resources_download(string $filePath, string $dirPath = ''): array
+    {
+        /* отправляем запрос на получение ссылки для скачивания */
+        $arrParams = [
+            'path' => $filePath,
+        ];
+
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/download';
+        $resultQuery = $this->sendQueryYaDisk($urlQuery, $arrParams);
+        /* ----------------- */
+
+        if (empty($resultQuery['error'])) {
+            $file_name = $dirPath . basename($filePath);
+            $file = @fopen($file_name, 'w');
+
+            $ch = curl_init($resultQuery['href']);
+            curl_setopt($ch, CURLOPT_FILE, $file);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: OAuth ' . $this->token));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            $resultQuery = curl_exec($ch);
+            curl_close($ch);
+
+            fclose($file);
+
+            return [
+                'message' => 'Файл успешно загружен',
+                'path' => $file_name,
+            ];
+        } else {
+            return $resultQuery;
+        }
+    }
+
 }
 
 $backupClass = new Backup();
 
 
-$arrParams = [
-  //  'path' => '/uploads',
-//     'fields' => 'name,_embedded.items.path',
-    'limit' => 10,
-    'media_type' => 'image',
-    'offset' => 0,
-    'preview_crop' => false,
-    'preview_size' => '',
-];
+
+$filePath = '/uploads/section-about-main.jpg';
+$dirPath = $_SERVER['DOCUMENT_ROOT'] . '/public/';
 
 
-$resultQuery = $backupClass->disk_resources_last_uploaded($arrParams);
+$resultQuery = $backupClass->disk_resources_download($filePath, $dirPath);
 
 vardump($resultQuery);
