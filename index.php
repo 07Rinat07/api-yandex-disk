@@ -1,8 +1,16 @@
 <?php
-
-// y0_AgAAAABw2QxrAAqBygAAAADs5A35WxXtYCqnSW6hDVd0YeqMOmi555M&
 class Backup
 {
+    function vardump($str) {
+        echo "<pre>";
+        var_dump($str);
+        echo "</pre>";
+    }
+
+//    http://localhost/api-yandex-disk/#access_token=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY&token_type=bearer&expires_in=31536000
+
+//. https://oauth.yandex.ru/authorize?response_type=token&client_id=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY
+    protected $token = 'y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY';
     /**
      * Method sendQueryYaDisk
      *
@@ -45,4 +53,20 @@ class Backup
 
         return (!empty($resultQuery)) ? json_decode($resultQuery, true) : [];
     }
+
+    /**
+     * Метод для получения общей информации об аккаунте
+     *
+     * @return array
+     */
+    public function disk_getInfo(): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/';
+        return $this->sendQueryYaDisk($urlQuery);
+    }
 }
+
+$backupClass = new Backup();
+$resultQuery = $backupClass->disk_getInfo();
+
+var_dump($resultQuery);

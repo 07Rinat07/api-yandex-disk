@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../api-yandex-disk/.idea/API_Yandex_Disk.iml" filepath="$PROJECT_DIR$/../api-yandex-disk/.idea/API_Yandex_Disk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../api-yandex-disk/.idea/api-yandex-disk.iml" filepath="$PROJECT_DIR$/../api-yandex-disk/.idea/api-yandex-disk.iml" />
     </modules>
   </component>
 </project>
