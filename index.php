@@ -221,16 +221,58 @@ class Backup
         }
     }
 
+    /**
+     * Удаление ресурса с Яндекс.Диск
+     *
+     * @param array $arrParams
+     * @return array
+     */
+    public function disk_resources_delete(array $arrParams): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/';
+        return $this->sendQueryYaDisk($urlQuery, $arrParams, 'DELETE');
+    }
+
+    /**
+     * Публикация ресурса на Яндекс.Диске
+     *
+     * @param  array $arrParams
+ * @param bool $statusPublic
+     * @return array
+     */
+    public function disk_resources_publish(array $arrParams, bool $statusPublic = true): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/' . (($statusPublic) ? 'publish' : 'unpublish');
+        return $this->sendQueryYaDisk($urlQuery, $arrParams, 'PUT');
+    }
+
+    /**
+     * Получение списка публичных файлов с Яндекс.Диска
+     *
+     * @param  array $arrParams
+     * @return array
+     */
+    public function disk_resources_public(array $arrParams): array
+    {
+        $urlQuery = 'https://cloud-api.yandex.net/v1/disk/resources/public';
+        return $this->sendQueryYaDisk($urlQuery, $arrParams);
+    }
+
+
+
 }
 
 $backupClass = new Backup();
 
 
+$arrParams = [
+    'limit' => 10,
+    'offset' => 0,
+    //'type' => 'dir',
+    'fields' => 'name,_embedded.items.path',
+  //  'preview_size' => '',
+];
 
-$filePath = '/uploads/section-about-main.jpg';
-$dirPath = $_SERVER['DOCUMENT_ROOT'] . '/public/';
-
-
-$resultQuery = $backupClass->disk_resources_download($filePath, $dirPath);
+$resultQuery = $backupClass -> disk_resources_public($arrParams);
 
 vardump($resultQuery);
