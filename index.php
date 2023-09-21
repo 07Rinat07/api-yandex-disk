@@ -13,8 +13,8 @@ class Backup
 
 //    http://localhost/api-yandex-disk/#access_token=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY&token_type=bearer&expires_in=31536000
 
-//. https://oauth.yandex.ru/authorize?response_type=token&client_id=y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY
-    protected $token = 'y0_AgAAAABw2XocAAqB4AAAAADs5Zp5oOuKeqfyQZKsnd8SH7WzBNbtioY';
+//. https://oauth.yandex.ru/authorize?response_type=token&client_id=
+    protected $token = '';
 
     /**
      * Method sendQueryYaDisk
